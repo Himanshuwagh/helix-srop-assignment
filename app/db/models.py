@@ -45,6 +45,7 @@ class Message(Base):
     role: Mapped[str] = mapped_column(String(16))  # user | assistant
     content: Mapped[str] = mapped_column(Text)
     trace_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    idempotency_key: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     session: Mapped["Session"] = relationship(back_populates="messages")
@@ -59,4 +60,14 @@ class AgentTrace(Base):
     tool_calls: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list)
     retrieved_chunk_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
     latency_ms: Mapped[int] = mapped_column(default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class Ticket(Base):
+    __tablename__ = "tickets"
+
+    ticket_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(64), index=True)
+    summary: Mapped[str] = mapped_column(Text)
+    priority: Mapped[str] = mapped_column(String(16)) # low | medium | high
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

@@ -7,7 +7,7 @@ Mock data is acceptable for the take-home; the integration matters.
 TODO for candidate: implement these tools.
 """
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 
 
 @dataclass
@@ -38,8 +38,21 @@ async def get_recent_builds(user_id: str, limit: int = 5) -> list[BuildSummary]:
     The key evaluation point is that this is wired as an ADK tool
     and the agent correctly invokes it when the user asks about builds.
     """
-    # TODO: implement — query DB or return mock data
-    raise NotImplementedError("Implement get_recent_builds()")
+    now = datetime.now(UTC)
+    statuses = ["failed", "passed", "cancelled", "failed", "passed"]
+    builds: list[BuildSummary] = []
+    for index in range(max(limit, 1)):
+        builds.append(
+            BuildSummary(
+                build_id=f"build_{user_id}_{index + 1}",
+                pipeline="helix-ci",
+                status=statuses[index % len(statuses)],
+                branch="main" if index % 2 == 0 else "release",
+                started_at=now - timedelta(hours=index + 1),
+                duration_seconds=180 + (index * 25),
+            )
+        )
+    return builds[:limit]
 
 
 async def get_account_status(user_id: str) -> AccountStatus:
@@ -48,5 +61,14 @@ async def get_account_status(user_id: str) -> AccountStatus:
 
     For the take-home: mock data is fine.
     """
-    # TODO: implement
-    raise NotImplementedError("Implement get_account_status()")
+    plan_tier = "enterprise" if "ent" in user_id else "pro" if "pro" in user_id else "free"
+    concurrent_limit = 20 if plan_tier == "enterprise" else 5 if plan_tier == "pro" else 2
+    storage_limit = 500.0 if plan_tier == "enterprise" else 100.0 if plan_tier == "pro" else 10.0
+    return AccountStatus(
+        user_id=user_id,
+        plan_tier=plan_tier,
+        concurrent_builds_used=2 if plan_tier != "free" else 1,
+        concurrent_builds_limit=concurrent_limit,
+        storage_used_gb=12.5 if plan_tier != "free" else 4.2,
+        storage_limit_gb=storage_limit,
+    )

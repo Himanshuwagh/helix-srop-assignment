@@ -21,11 +21,15 @@ class ChatResponse(BaseModel):
     trace_id: str
 
 
+from typing import Annotated
+from fastapi import APIRouter, Depends, Header
+
 @router.post("/chat/{session_id}", response_model=ChatResponse)
 async def chat(
     session_id: str,
     body: ChatRequest,
     db: AsyncSession = Depends(get_db),
+    idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
 ) -> ChatResponse:
     """
     Run one turn of the SROP pipeline.
@@ -34,5 +38,5 @@ async def chat(
     - Session not found → 404
     - LLM timeout → 504
     """
-    result = await pipeline.run(session_id, body.content, db)
+    result = await pipeline.run(session_id, body.content, db, idempotency_key=idempotency_key)
     return ChatResponse(reply=result.content, routed_to=result.routed_to, trace_id=result.trace_id)

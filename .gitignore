@@ -1,1 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# Environment & Secrets
+.env
+
+# Database & Vector Store (Local state)
+helix_srop.db
+chroma_db/
+
+# Testing & Linting
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# OS
 .DS_Store
+
+# Eval results (Optional: usually generated at runtime)
+eval/eval_report.json
