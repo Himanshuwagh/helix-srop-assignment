@@ -5,7 +5,7 @@ A stateful, agentic RAG orchestration pipeline built with **Google ADK**, **Fast
 ## Setup
 
 ```bash
-git clone <your-repo>
+git clone https://github.com/Himanshuwagh/helix-srop-assignment.git
 cd helix-srop-assignment
 uv sync
 cp .env.example .env  # fill in GOOGLE_API_KEY
